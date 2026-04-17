@@ -99,7 +99,7 @@ class TransformerColiee(pl.LightningModule):
     def val_dataloader(self):
         dataset = self.DatasetClass(
             queries_path=self.hparams.dev_queries_path,
-            labels_path=self.hparams._dev_labels_path,
+            labels_path=self.hparams.dev_labels_path,
             corpus_path=self.hparams.dev_corpus_path,
             tokenizer=self.tokenizer,
             mode="dev",
