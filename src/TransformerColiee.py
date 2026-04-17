@@ -79,13 +79,13 @@ class TransformerColiee(pl.LightningModule):
 
     def train_dataloader(self):
         dataset = self.DatasetClass(
-            queries_path=self.hparams.queries_path,
-            labels_path=self.hparams.labels_path,
-            corpus_path=self.hparams.corpus_path,
+            queries_path=self.hparams.train_queries_path,
+            labels_path=self.hparams.train_labels_path,
+            corpus_path=self.hparams.train_corpus_path,
             tokenizer=self.tokenizer,
             mode="train",
             max_seq_len=self.hparams.max_seq_len,
-            retrieval_results_path=self.hparams.retrieval_path,
+            retrieval_results_path=self.hparams.train_retrieval_path,
         )
 
         return DataLoader(
@@ -98,13 +98,13 @@ class TransformerColiee(pl.LightningModule):
 
     def val_dataloader(self):
         dataset = self.DatasetClass(
-            queries_path=self.hparams.queries_path,
-            labels_path=self.hparams.labels_path,
-            corpus_path=self.hparams.corpus_path,
+            queries_path=self.hparams.dev_queries_path,
+            labels_path=self.hparams._dev_labels_path,
+            corpus_path=self.hparams.dev_corpus_path,
             tokenizer=self.tokenizer,
             mode="dev",
             max_seq_len=self.hparams.max_seq_len,
-            retrieval_results_path=self.hparams.retrieval_path,
+            retrieval_results_path=self.hparams.dev_retrieval_path,
         )
 
         return DataLoader(

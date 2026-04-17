@@ -93,11 +93,17 @@ if __name__ == "__main__":
     parser.add_argument("--val_check_interval", type=int, default=2000)
 
     # DATA
-    parser.add_argument("--queries_path", type=str, required=True)
-    parser.add_argument("--labels_path", type=str, required=True)
-    parser.add_argument("--corpus_path", type=str, required=True)
-    parser.add_argument("--retrieval_path", type=str, default=None)
+    # TRAIN
+    parser.add_argument("--train_queries_path", type=str, required=True)
+    parser.add_argument("--train_labels_path", type=str, required=True)
+    parser.add_argument("--train_corpus_path", type=str, required=True)
+    parser.add_argument("--train_retrieval_path", type=str, default=None)
 
+    # DEV
+    parser.add_argument("--dev_queries_path", type=str, required=True)
+    parser.add_argument("--dev_labels_path", type=str, required=True)
+    parser.add_argument("--dev_corpus_path", type=str, required=True)
+    parser.add_argument("--dev_retrieval_path", type=str, default=None)
     # BATCH
     parser.add_argument("--train_bs", type=int, default=1)
     parser.add_argument("--eval_bs", type=int, default=1)

@@ -140,7 +140,7 @@ class ColieeDataset(Dataset):
     # ── Encoding ──────────────────────────────────────────────────────────────
 
     def _encode(self, query, document, label, qid):
-        encoded = self.tokenizer.encode_plus(
+        encoded = self.tokenizer(
             query,
             document,
             add_special_tokens=True,
