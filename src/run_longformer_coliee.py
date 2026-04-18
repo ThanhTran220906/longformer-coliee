@@ -41,13 +41,13 @@ def main(hparams):
     checkpoint_callback = ModelCheckpoint(
         dirpath="checkpoints",
         filename="best-{epoch}-{val_loss:.4f}",
-        save_top_k=3,
+        save_top_k=hparams.save_total_limit,
         monitor="val_loss",
         mode="min",
     )
 
     # ─────────────────────────────────────────────
-    # Trainer (PL >= 2.x style)
+    # Trainer
     # ─────────────────────────────────────────────
     trainer = pl.Trainer(
         accelerator="gpu" if hparams.gpus > 0 else "cpu",
@@ -89,8 +89,9 @@ if __name__ == "__main__":
     # TRAINING
     parser.add_argument("--num_warmup_steps", type=int, default=2500)
     parser.add_argument("--num_training_steps", type=int, default=120000)
-    parser.add_argument("--epochs", type=int, default=5)
-    parser.add_argument("--val_check_interval", type=int, default=2000)
+    parser.add_argument("--epochs", type=int, default=3)
+    parser.add_argument("--val_check_interval", type=int, default=1000)
+    parser.add_argument("--save_total_limit", type=int, default=3)
 
     # DATA
     # TRAIN
@@ -98,6 +99,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_labels_path", type=str, required=True)
     parser.add_argument("--train_corpus_path", type=str, required=True)
     parser.add_argument("--train_retrieval_path", type=str, default=None)
+    parser.add_argument("--neg_strategy", type=str, required=True)
 
     # DEV
     parser.add_argument("--dev_queries_path", type=str, required=True)

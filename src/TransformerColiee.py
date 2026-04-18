@@ -18,7 +18,7 @@ class TransformerColiee(pl.LightningModule):
     def __init__(self, hparams):
         super().__init__()
 
-        self.save_hyperparameters(hparams)  # 🔥 log config lên wandb
+        self.save_hyperparameters(hparams)
 
         self.loss_type = hparams.loss_type
 
@@ -84,6 +84,7 @@ class TransformerColiee(pl.LightningModule):
             corpus_path=self.hparams.train_corpus_path,
             tokenizer=self.tokenizer,
             mode="train",
+            neg_strategy=self.hparams.neg_strategy,
             max_seq_len=self.hparams.max_seq_len,
             retrieval_results_path=self.hparams.train_retrieval_path,
         )
@@ -159,11 +160,11 @@ class TransformerColiee(pl.LightningModule):
         else:
             raise ValueError("loss_type must be 'bce' or 'margin'")
 
-        self.log("train_loss", loss, prog_bar=True, on_step=True, on_epoch=True)
+        self.log("train_loss", loss, prog_bar=True, on_step=False, on_epoch=True)
 
         # log lr
         lr = self.trainer.optimizers[0].param_groups[0]["lr"]
-        self.log("lr", lr, on_step=True)
+        self.log("lr", lr, on_step=False, on_epoch=True)
 
         return loss
 

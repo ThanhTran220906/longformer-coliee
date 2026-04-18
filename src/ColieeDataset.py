@@ -188,6 +188,7 @@ class ColieeDataset(Dataset):
                 reverse=True,
             )
             pool = []
+            seen = set()
             for pid in sorted_pids:
                 p_score = pos_scores.get(pid, fallback)
                 ranked = sorted(
@@ -195,7 +196,8 @@ class ColieeDataset(Dataset):
                      if lower_bound <= p_score - sc < upper_bound],
                     key=lambda x: x[1], reverse=True,
                 )
-                selected = [d for d, _ in ranked[:num_hard_negs]]
+                selected = [d for d, _ in ranked[:num_hard_negs] if d not in seen]
+                seen.update(selected)
                 # fallback nếu không đủ
                 if len(selected) < num_hard_negs:
                     fb = sorted(neg_candidates, key=lambda x: x[1], reverse=True)
