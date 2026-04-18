@@ -201,7 +201,7 @@ class TransformerColiee(pl.LightningModule):
             probs = torch.sigmoid(logits)
 
         # log step loss (optional)
-        self.log("val_step_loss", loss, prog_bar=False, on_step=False)
+        # self.log("val_step_loss", loss, prog_bar=False, on_step=False)
 
         self.val_outputs.append({
             "loss": loss.detach(),
@@ -233,7 +233,7 @@ class TransformerColiee(pl.LightningModule):
         self.log("mrr", mrr, prog_bar=True, on_step=False)
         self.log("mrr@10", mrr10, on_step=False)
 
-        print(f"\nVAL LOSS: {avg_loss:.4f} | MRR: {mrr:.4f} | MRR@10: {mrr10:.4f}")
+        # print(f"\nVAL LOSS: {avg_loss:.4f} | MRR: {mrr:.4f} | MRR@10: {mrr10:.4f}")
 
         # clear buffer
         self.val_outputs.clear()
