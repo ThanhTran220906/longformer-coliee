@@ -172,12 +172,49 @@ class ColieeDataset(Dataset):
         pos_ids, pos_ids_list, neg_candidates, retrieved_docs,
         all_doc_ids, num_hard_negs, neg_strategy,
         lower_bound, upper_bound,
-    ):
+        ):
         target = num_hard_negs * len(pos_ids_list)
 
         if neg_strategy == "random":
             pool = [d for d in all_doc_ids if d not in pos_ids]
             return random.sample(pool, min(target, len(pool)))
+
+        elif neg_strategy == "rank":
+            # Lấy top-k từ retrieved list, bỏ qua 5 đầu (thường là pos hoặc quá dễ)
+            pool = [did for did, _ in neg_candidates[5 : 5 + target]]
+            # Nếu không đủ thì lấy thêm từ phần còn lại
+            if len(pool) < target:
+                extra = [
+                    did for did, _ in neg_candidates
+                    if did not in set(pool)
+                ][: target - len(pool)]
+                pool.extend(extra)
+            return pool
+
+        elif neg_strategy == "representation":
+            # Lấy neg có score gần nhất với pos (khó nhất về mặt representation)
+            pos_scores = {did: sc for did, sc in retrieved_docs if did in pos_ids}
+            fallback   = min((sc for _, sc in neg_candidates), default=0) * 0.9
+
+            pool = []
+            seen = set()
+            # Sort pos theo score giảm dần để ưu tiên pos khó trước
+            sorted_pids = sorted(
+                pos_ids_list,
+                key=lambda p: pos_scores.get(p, fallback),
+                reverse=True,
+            )
+            for pid in sorted_pids:
+                p_score = pos_scores.get(pid, fallback)
+                ranked = sorted(
+                    [(d, sc) for d, sc in neg_candidates if d not in seen],
+                    key=lambda x: abs(p_score - x[1]),  # gần score pos nhất
+                )
+                selected = [d for d, _ in ranked[:num_hard_negs]]
+                seen.update(selected)
+                pool.extend(selected)
+
+            return pool[:target]
 
         elif neg_strategy == "gap":
             pos_scores = {did: sc for did, sc in retrieved_docs if did in pos_ids}
@@ -193,12 +230,11 @@ class ColieeDataset(Dataset):
                 p_score = pos_scores.get(pid, fallback)
                 ranked = sorted(
                     [(d, sc) for d, sc in neg_candidates
-                     if lower_bound <= p_score - sc < upper_bound],
+                        if lower_bound <= p_score - sc < upper_bound],
                     key=lambda x: x[1], reverse=True,
                 )
                 selected = [d for d, _ in ranked[:num_hard_negs] if d not in seen]
                 seen.update(selected)
-                # fallback nếu không đủ
                 if len(selected) < num_hard_negs:
                     fb = sorted(neg_candidates, key=lambda x: x[1], reverse=True)
                     selected += [d for d, _ in fb if d not in selected][
@@ -220,11 +256,11 @@ class ColieeDataset(Dataset):
                 p_score = pos_scores.get(pid, fallback)
                 ranked = sorted(
                     [(d, sc) for d, sc in neg_candidates
-                     if d not in seen and lower_bound <= p_score - sc < upper_bound],
+                        if d not in seen and lower_bound <= p_score - sc < upper_bound],
                     key=lambda x: x[1], reverse=True,
                 )
                 pool.extend(d for d, _ in ranked[:num_hard_negs])
                 seen.update(d for d, _ in ranked[:num_hard_negs])
             return pool[:target]
 
-        return []  # fallback
+        return []
