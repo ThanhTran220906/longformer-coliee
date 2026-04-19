@@ -39,11 +39,11 @@ def main(hparams):
     # Checkpoint
     # ─────────────────────────────────────────────
     checkpoint_callback = ModelCheckpoint(
-        dirpath="checkpoints",
-        filename="best-{epoch}-{val_loss:.4f}",
+        dirpath=f"checkpoints/longformer-{hparams.loss_type}-{hparams.neg_strategy}",
+        filename="best-{epoch}-{mrr:.4f}",
         save_top_k=hparams.save_total_limit,
-        monitor="val_loss",
-        mode="min",
+        monitor="mrr",
+        mode="max",
     )
 
     # ─────────────────────────────────────────────
