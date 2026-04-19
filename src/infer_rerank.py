@@ -75,7 +75,7 @@ class InferDataset(Dataset):
         encoding = self.tokenizer(
             s["query"],
             s["doc"],
-            max_length=self.tokenizer.model_max_length,
+            max_length=self.max_seq_len,
             truncation=True,
             padding="max_length",
             return_tensors="pt",
