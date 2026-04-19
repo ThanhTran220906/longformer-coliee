@@ -20,6 +20,9 @@ class TransformerColiee(pl.LightningModule):
 
         self.save_hyperparameters(hparams)
 
+        if isinstance(hparams, dict):
+            from argparse import Namespace
+            hparams = Namespace(**hparams)
         self.loss_type = hparams.loss_type
 
         self.tokenizer = LongformerTokenizer.from_pretrained(hparams.model_name)
