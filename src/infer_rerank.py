@@ -56,7 +56,7 @@ class InferDataset(Dataset):
             query_text = truncate(queries[qid], max_query_words)
 
             retrieved_items = list(item["retrieved"].items())[:self.top_k]
-            for docid, qwen_score in retrieved_items:
+            for docid, bm25_score in retrieved_items:
                 if docid not in corpus_index:
                     continue
                 doc_text = truncate(corpus_index[docid], max_doc_words)
@@ -65,7 +65,7 @@ class InferDataset(Dataset):
                     "docid": docid,
                     "query": query_text,
                     "doc": doc_text,
-                    "qwen_score": qwen_score,
+                    "bm25_score": bm25_score,
                 })
 
     def __len__(self):
@@ -237,6 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_path",     required=True)
 
     parser.add_argument("--top_k",           type=int, default=100, help="Số doc tối đa lấy từ retrieved mỗi query")
+    parser.add_argument("--max_query_words", type=int, default=2000)
     parser.add_argument("--max_doc_words",   type=int, default=2000)
     parser.add_argument("--max_seq_len",     type=int, default=4096)
     parser.add_argument("--batch_size",      type=int, default=8)
