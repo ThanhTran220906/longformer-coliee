@@ -1,11 +1,6 @@
+
 import argparse
-import json
 import math
-
-
-def read_json(path):
-    with open(path) as f:
-        return json.load(f)
 
 
 def parse_args():
@@ -21,6 +16,23 @@ def parse_args():
     )
     return parser.parse_args()
 
+def read_json(file_path: str):
+    preds = []
+    if file_path.endswith(".json"):
+        with open(file_path, "r") as f:
+            preds = json.load(f)
+        return preds
+    else:
+        pred_data = []
+        with open(file_path, "r") as f:
+            for line in f:
+                pred_data.append(json.loads(line))
+
+        preds = {"default": {"test": {}}}
+        for pred in pred_data:
+            preds["default"]["test"][pred["qid"]] = pred["retrieved"]
+
+        return preds
 
 def ndcg_at_k(relevances, k, num_relevant):
     dcg = sum(rel / math.log2(i + 2) for i, rel in enumerate(relevances[:k]))
@@ -39,14 +51,17 @@ def evaluate_metrics(preds, golds, k):
             matched_queries += 1
             gold_docs = set(golds[qid])
 
+            # Sort by score descending and take top-k
             pred_dict = preds['default']['test'][qid]
             pred_docs = sorted(pred_dict.items(), key=lambda x: x[1], reverse=True)
             pred_docs = [doc_id for doc_id, score in pred_docs[:k]]
             pred_docs_set = set(pred_docs)
 
+            # Relevance list for NDCG
             relevances = [1 if doc_id in gold_docs else 0 for doc_id in pred_docs]
             ndcg_scores.append(ndcg_at_k(relevances, k, len(gold_docs)))
 
+            # Accuracy
             if gold_docs & pred_docs_set:
                 correct_queries += 1
 
@@ -78,6 +93,7 @@ def evaluate_metrics(preds, golds, k):
 
 
 def print_metrics(metrics: dict) -> None:
+    """Pretty print evaluation metrics in a formatted table."""
     header = f"{'k':>6} │ {'Prec':>8} │ {'Recall':>8} │ {'F1':>8} │ {'NDCG':>8} │ {'Acc':>8}"
     separator = "─" * len(header)
 
