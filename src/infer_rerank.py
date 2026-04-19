@@ -37,10 +37,11 @@ from TransformerColiee import TransformerColiee
 # ─────────────────────────────────────────────
 class InferDataset(Dataset):
     def __init__(self, queries, corpus, retrieval_results, tokenizer,
-                 max_query_words=2000, max_doc_words=2000, max_seq_len=4096):
+                 max_query_words=2000, max_doc_words=2000, max_seq_len=4096, top_k=100):
 
         self.tokenizer = tokenizer
         self.max_seq_len = max_seq_len
+        self.top_k = top_k
 
         # index corpus by docid
         corpus_index = {d["docid"]: d["text"] for d in corpus}
@@ -54,7 +55,8 @@ class InferDataset(Dataset):
             qid = item["qid"]
             query_text = truncate(queries[qid], max_query_words)
 
-            for docid, bm25_score in item["retrieved"].items():
+            retrieved_items = list(item["retrieved"].items())[:self.top_k]
+            for docid, bm25_score in retrieved_items:
                 if docid not in corpus_index:
                     continue
                 doc_text = truncate(corpus_index[docid], max_doc_words)
@@ -180,6 +182,7 @@ def main(args):
         max_query_words=args.max_query_words,
         max_doc_words=args.max_doc_words,
         max_seq_len=args.max_seq_len,
+        top_k=args.top_k,
     )
 
     loader = DataLoader(
@@ -233,7 +236,7 @@ if __name__ == "__main__":
     parser.add_argument("--retrieval_path",  required=True)
     parser.add_argument("--output_path",     required=True)
 
-    parser.add_argument("--max_query_words", type=int, default=2000)
+    parser.add_argument("--top_k",           type=int, default=100, help="Số doc tối đa lấy từ retrieved mỗi query")
     parser.add_argument("--max_doc_words",   type=int, default=2000)
     parser.add_argument("--max_seq_len",     type=int, default=4096)
     parser.add_argument("--batch_size",      type=int, default=8)
