@@ -1,6 +1,11 @@
-from utils import utils
 import argparse
+import json
 import math
+
+
+def read_json(path):
+    with open(path) as f:
+        return json.load(f)
 
 
 def parse_args():
@@ -34,17 +39,14 @@ def evaluate_metrics(preds, golds, k):
             matched_queries += 1
             gold_docs = set(golds[qid])
 
-            # Sort by score descending and take top-k
             pred_dict = preds['default']['test'][qid]
             pred_docs = sorted(pred_dict.items(), key=lambda x: x[1], reverse=True)
             pred_docs = [doc_id for doc_id, score in pred_docs[:k]]
             pred_docs_set = set(pred_docs)
 
-            # Relevance list for NDCG
             relevances = [1 if doc_id in gold_docs else 0 for doc_id in pred_docs]
             ndcg_scores.append(ndcg_at_k(relevances, k, len(gold_docs)))
 
-            # Accuracy
             if gold_docs & pred_docs_set:
                 correct_queries += 1
 
@@ -76,7 +78,6 @@ def evaluate_metrics(preds, golds, k):
 
 
 def print_metrics(metrics: dict) -> None:
-    """Pretty print evaluation metrics in a formatted table."""
     header = f"{'k':>6} │ {'Prec':>8} │ {'Recall':>8} │ {'F1':>8} │ {'NDCG':>8} │ {'Acc':>8}"
     separator = "─" * len(header)
 
@@ -98,7 +99,7 @@ def print_metrics(metrics: dict) -> None:
 
 if __name__ == "__main__":
     args = parse_args()
-    preds = utils.read_json(args.predictions_path)
-    golds = utils.read_json(args.golds_path)
+    preds = read_json(args.predictions_path)
+    golds = read_json(args.golds_path)
     metrics = [evaluate_metrics(preds, golds, k) for k in args.topk]
     print_metrics(metrics)
