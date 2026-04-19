@@ -56,7 +56,7 @@ class InferDataset(Dataset):
             query_text = truncate(queries[qid], max_query_words)
 
             retrieved_items = list(item["retrieved"].items())[:self.top_k]
-            for docid, bm25_score in retrieved_items:
+            for docid, qwen_score in retrieved_items:
                 if docid not in corpus_index:
                     continue
                 doc_text = truncate(corpus_index[docid], max_doc_words)
@@ -65,7 +65,7 @@ class InferDataset(Dataset):
                     "docid": docid,
                     "query": query_text,
                     "doc": doc_text,
-                    "bm25_score": bm25_score,
+                    "qwen_score": qwen_score,
                 })
 
     def __len__(self):
