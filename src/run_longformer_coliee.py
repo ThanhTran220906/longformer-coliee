@@ -1,3 +1,27 @@
+"""
+Finetune script
+
+# Usage
+    python src/run_longformer_coliee.py \
+        --loss_type bce \
+        --val_check_interval 1750 \
+        --save_total_limit 2 \
+        --train_queries_path           data/coliee_task1/2026/split/task1_train_queries_2026.json \
+        --train_labels_path            data/coliee_task1/2026/split/task1_train_labels_2026.json \
+        --train_corpus_path            data/coliee_task1/2026/split/task1_train_corpus_2026.json \
+        --train_retrieval_path         results/2026/ranking/coliee_task1_train.2026.qwen3.jsonl \
+        --neg_strategy random \
+        --dev_queries_path           data/coliee_task1/2026/split/task1_dev_queries_2026.json \
+        --dev_labels_path            data/coliee_task1/2026/split/task1_dev_labels_2026.json \
+        --dev_corpus_path            data/coliee_task1/2026/split/task1_dev_corpus_2026.json \
+        --dev_retrieval_path         results/2026/ranking/coliee_task1_dev.2026.qwen3.jsonl \
+        --train_bs 16 \
+        --eval_bs 16 \
+        --trainer_batch_size 2 \
+        --gpus 1 \
+        --epochs 3 \
+        --run_name ft_longformer_random
+"""
 import pytorch_lightning as pl
 import argparse
 import os
